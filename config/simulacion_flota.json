@@ -1,0 +1,206 @@
+{
+  "mode": "simulation",
+  "interval": 600,
+  "timeout": 15,
+  "stale_after": 1200,
+  "retry_delay": 30,
+  "bind": "127.0.0.1",
+  "port": 1502,
+  "slave_id": 1,
+  "database": "../data/database/simulacion_flota.sqlite",
+  "log_dir": "../logs/simulacion_flota",
+  "units": [
+    {
+      "slot": 1,
+      "radio_id": "000000000001",
+      "profile": 7,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 2,
+      "radio_id": "000000000002",
+      "profile": 7,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 3,
+      "radio_id": "000000000003",
+      "profile": 7,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 4,
+      "radio_id": "000000000004",
+      "profile": 7,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 5,
+      "radio_id": "000000000005",
+      "profile": 6,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 6,
+      "radio_id": "000000000006",
+      "profile": 7,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 7,
+      "radio_id": "000000000007",
+      "profile": 7,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 8,
+      "radio_id": "000000000008",
+      "profile": 7,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 9,
+      "radio_id": "000000000009",
+      "profile": 7,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 10,
+      "radio_id": "00000000000A",
+      "profile": 7,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 11,
+      "radio_id": "00000000000B",
+      "profile": 6,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 12,
+      "radio_id": "00000000000C",
+      "profile": 6,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 13,
+      "radio_id": "00000000000D",
+      "profile": 6,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 14,
+      "radio_id": "00000000000E",
+      "profile": 6,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 15,
+      "radio_id": "00000000000F",
+      "profile": 4,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 16,
+      "radio_id": "000000000010",
+      "profile": 4,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 17,
+      "radio_id": "000000000011",
+      "profile": 4,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 18,
+      "radio_id": "000000000012",
+      "profile": 4,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 19,
+      "radio_id": "000000000013",
+      "profile": 4,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 20,
+      "radio_id": "000000000014",
+      "profile": 4,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 21,
+      "radio_id": "000000000015",
+      "profile": 4,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 22,
+      "radio_id": "000000000016",
+      "profile": 4,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 23,
+      "radio_id": "000000000017",
+      "profile": 4,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    },
+    {
+      "slot": 24,
+      "radio_id": "000000000018",
+      "profile": 4,
+      "enabled": true,
+      "di_mask": 1023,
+      "rs485_mask": 262143
+    }
+  ]
+}

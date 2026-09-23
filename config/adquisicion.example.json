@@ -1,0 +1,24 @@
+{
+  "mode": "ssh",
+  "interval": 600,
+  "timeout": 15,
+  "stale_after": 1200,
+  "retry_delay": 30,
+  "bind": "127.0.0.1",
+  "port": 1502,
+  "slave_id": 1,
+  "database": "../data/database/adquisicion.sqlite",
+  "log_dir": "../logs/acquisition",
+  "units": [
+    {
+      "slot": 24,
+      "radio_id": "001122334455",
+      "profile": 4,
+      "enabled": true,
+      "direct_confirmed": true,
+      "di_mask": 0,
+      "rs485_mask": 0
+    }
+  ],
+  "ssh_target": "beaglebone-lectura"
+}

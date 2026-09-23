@@ -14,3 +14,10 @@ No se ha modificado la configuración del JAR, que no consume estas variables.
 
 No añadir aquí copias de configuración real ni claves. Los archivos
 `*.local.*` y `.env` se ignoran como protección adicional.
+
+## Adquisicion PC
+
+`simulacion_flota.json` contiene 24 radios ficticias. `adquisicion.example.json`
+es una plantilla SSH. Configuracion real en `*.local.json`, ignorada por Git.
+No hay carga implicita de .env para el coordinador: recibe --config explicitamente.
+Base y logs se resuelven respecto al JSON. Ver ../docs/ADQUISICION.md.

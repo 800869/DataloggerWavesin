@@ -57,6 +57,8 @@ def inspect_content(name, raw, source, errors):
                 # Utilidades de radio Linux verificadas desde el PC Windows.
                 if sys.platform == "win32" and module in ("termios", "fcntl"):
                     continue
+                if sys.platform != "win32" and module == "msvcrt":
+                    continue
                 if module and importlib.util.find_spec(module) is None:
                     errors.append(f"{source}: unresolved import {module}: {name}")
 

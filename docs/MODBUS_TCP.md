@@ -1,4 +1,47 @@
-# Prueba U24 por Modbus TCP
+# Pruebas de banco: U24 y simulador simple
+
+Para el servicio PC de 24 remotas, ver [ADQUISICION.md](ADQUISICION.md).
+Esta guia conserva las pruebas monounidad anteriores y su mapa 0..24.
+
+## Prueba local sin hardware (Windows)
+
+Ejecutar desde la raiz del proyecto:
+
+```powershell
+.\scripts\Abrir_simulador_modbus.cmd
+```
+
+Mantener la consola abierta; Ctrl+C termina el servidor. No requiere paquetes
+externos ni accede a la BeagleBone. Todos los valores son **FICTICIOS**.
+En Modbus Poll conectar por TCP/IP a `127.0.0.1`, puerto `1502`.
+Configurar Slave ID `1`, funcion `03`, direccion inicial `0`, cantidad `20`
+registros y periodo `1000 ms`. Mostrar como unsigned de 32 bits, palabra alta
+primero (big-endian, sin intercambio). Usar direcciones basadas en cero.
+Los diez contadores empiezan en 100000, 200000, ... 1000000 y aumentan
+respectivamente 1, 2, ... 10 cada segundo.
+
+Otra lectura de direccion `20`, cantidad `5`, formato unsigned de 16 bits
+muestra estado, edad, lecturas correctas, fallos y origen. El registro `24=1`
+identifica simulacion; esta extension solo existe en el simulador, sin cambiar
+el mapa del puente real (0..23).
+
+Para probar fallos y recuperacion:
+
+```powershell
+.\scripts\Abrir_simulador_modbus.cmd --fault-cycle
+```
+
+Con el intervalo predeterminado, cada ciclo tiene 20 segundos de datos y 10
+de fallo: los contadores quedan retenidos, el estado pasa a 2 y aumenta la
+edad. Despues se recupera el estado 1. Se simula fallo de adquisicion, no
+desconexion TCP. Cerrar primero cualquier simulador anterior.
+
+## Decision actual
+
+El usuario ha elegido Java detenido y lectura directa por SSH, sin FTP ni
+Node-RED. La alternativa de leer archivos generados por Java queda descartada.
+El nuevo coordinador y su despliegue estan en ADQUISICION.md y deployment/README.md.
+Lo siguiente describe el puente monounidad conservado para ensayos anteriores.
 
 `tools/puente_u24_modbus.py` es un ejecutable independiente, compatible en
 sintaxis con Python 3.5. Solo usa la biblioteca estándar. Se ejecuta en Linux;

@@ -1,147 +1,148 @@
-# DataloggerWavesin
+﻿# DataloggerWavesin
 
-Herramientas Python para analizar una copia local de un datalogger BeagleBone
-y consultar sus históricos en un visor web de solo lectura. El visor no conecta
-con la placa, la radio ni servidores FTP. La adquisición original pertenece al
-programa Java recuperado en la copia privada; no se sustituye con este proyecto.
+Adquisicion Wavenis desde un PC Windows, persistencia local y publicacion Modbus
+TCP para EBO/Modbus Poll. Incluye el visor de historicos del sistema anterior.
 
-También hay un [puente de banco U24 → Modbus TCP](docs/MODBUS_TCP.md), independiente
-del visor, para consultar contadores reales desde Modbus Poll. El puente funciona
-con Python 3.5+ en la BeagleBone, sin paquetes externos, y requiere detener Java
-para utilizar su puerto serie. Su puesta en marcha real se valida por separado.
+**Estado: implementacion de banco probada localmente, no desplegada como servicio
+ni validada con toda la instalacion.** U24: A2 y DI1/DI2 comprobados. U13 con
+expansion RS485 confirmada por el usuario; su respuesta y escala aun pendientes.
+
+[Indice](docs/INDICE.md) · [Tarjetas](docs/INVENTARIO_TARJETAS.md) ·
+[Mapa y adquisicion](docs/ADQUISICION.md) · [Despliegue](deployment/README.md)
+
+## Sistema anterior y objetivo
+
+Java XTHREECONPI V2.4 controla UART4 a 9600 8N1, recoge datos de 24 remotas,
+genera JSON y envia FTPES. Su arranque escribe relojes/configuracion; tiene
+limpieza de backups y TCP propio 1050 (no Modbus). La cola FTP acumulada coincidio
+con errores de almacenamiento lleno. La copia original permanece conservada.
+
+La nueva via sustituye esa adquisicion/envio: **Java detenido, sin FTP**.
+El PC consulta por SSH cada 600 segundos, persiste en su propio SQLite y sirve
+Modbus de solo lectura. No necesita Node-RED.
+
+```text
+Remotas DI / RS485 -> radio -> BeagleBone UART4 -> agente temporal SSH
+                                                        |
+PC Windows: adquisicion -> SQLite nueva -> Modbus TCP -> EBO / Modbus Poll
+```
+
+Configuracion recuperada: 10 remotas tipo 4, 5 tipo 6 y 9 tipo 7; 100 canales
+RS configurados en 14 remotas. El formato instantaneo reserva 10 DI, 2 analogicas
+y 18 RS por remota. No significa que todos tengan sensores o significado validado.
+
+## Proteccion de la BeagleBone y limites
+
+Este trabajo no ha conectado ni modificado la placa. El agente se transmite por
+stdin a Python 3.5, sin instalar paquetes ni archivos de programa. Solo consulta
+A2; comprueba MainPID=0 de Java, propietarios del puerto y bloqueo exclusivo.
+Si esta ocupado, falla sin detener procesos. Restaura la configuracion serie al
+salir normalmente o por senal; un corte de corriente/SIGKILL no permite garantizarlo.
+No cambia relojes, ajustes de remotas, GPIO, UART/setuarts ni historicos.
+
+**Para recuperarse tras reiniciar la placa hay que deshabilitar el arranque de
+Java de forma reversible.** Mientras siga habilitado, el lector se negara a
+competir con el Java que arranque. SSH desatendido requiere clave y known_hosts
+para la cuenta Windows del servicio; una contrasena interactiva no basta.
+Ambas preparaciones siguen pendientes y se explican en despliegue.
+
+No se promete impacto cero: cambia quien adquiere y Java deja de enviar FTP.
+Se conservan programa, configuraciones e historicos para una vuelta atras.
+Los cortes pueden perder muestras RS instantaneas; el lector no recupera
+historicos remotos. Los contadores acumulados solo permiten diferencias fiables
+si se verifican resets, desbordamientos y escala.
 
 ## Estructura
 
 ```text
-src/dataloggerwavesin/   Visor, HTML y resolución de rutas
-scripts/                Análisis de copia/históricos y lanzadores
-tools/                  Inspección Java y auditoría del repositorio
-config/                 Documentación de configuración versionable
-data/                   Ignorado por Git; disponible localmente
-  database/             historicos.sqlite
-  raw/                  TAR original, copia extraída y archivos de la SD
-  processed/            Resúmenes, inventarios y análisis Java
-  private/              Auditoría y originales anteriores a la reorganización
-logs/                   Logs recuperados; ignorados
-tests/                  Pruebas con datos sintéticos
-docs/                   Arquitectura y mapa de reorganización
-  private/              Informe original, manual, fotos y conversación; ignorados
-deployment/             Alcance y requisitos para BeagleBone
-BEAGLEBONE/              Lanzadores de compatibilidad con las rutas anteriores
-.env.example            Variables opcionales, sin credenciales
-requirements.txt        Sin dependencias externas
+src/dataloggerwavesin/
+  acquisition/          Configuracion, SSH, B2, persistencia y servidor Modbus
+  visor_historicos.py   Visor de solo lectura
+  visor.html, paths.py  Interfaz y rutas del visor
+scripts/               Lanzadores y utilidades de historicos
+tools/                 Diagnostico y lectores de banco conservados
+config/                Ejemplos; *.local.json privados ignorados
+deployment/windows/    Instalador opcional de tarea Windows
+docs/                  Indice, inventario y guias
+  private/             Manual, informe, conversacion originales ignorados
+tests/                 Pruebas sinteticas y TCP loopback
+data/                  Bases, TAR, copia, resultados y auditorias ignorados
+logs/                  Logs runtime ignorados
+BEAGLEBONE/            Lanzadores antiguos compatibles
 ```
 
-## Requisitos e instalación
+El nuevo codigo esta agrupado en acquisition/. Se mantienen las rutas de las
+evidencias porque aparecen en SQLite, informes y TAR; no se necesita moverlas
+para ordenar el software. Se conservan los lectores de banco para reproducir
+los ensayos previos. El indice distingue ambos sistemas.
 
-- Python 3.10 o posterior, con los módulos estándar `sqlite3` y `http.server`.
-- Git, para las comprobaciones del repositorio.
-- Datos locales para consultar históricos reales. No se incluyen en Git/GitHub.
+## Requisitos e inicio
 
-No hay paquetes externos que instalar. Opcionalmente, desde la raíz:
+PC: Python 3.10+ (validado localmente con 3.12), biblioteca estandar y cliente
+OpenSSH para modo real. BeagleBone: Python 3.5, termios/fcntl, SSH y UART4.
+No hacen falta paquetes pip. Opcional: `python -m venv .venv`.
 
-```sh
-python -m venv .venv
-```
-
-En Windows se puede usar `.venv\Scripts\python.exe`; en Linux,
-`.venv/bin/python`. Los comandos siguientes suponen que `python` corresponde
-al intérprete elegido (en Linux suele llamarse `python3`).
-
-## Abrir el visor
-
-En Windows, ejecutar `scripts\Abrir_visor.cmd`, o desde un terminal:
-
-```sh
-python scripts/visor_historicos.py
-```
-
-Abrir **http://127.0.0.1:8765/**. Detener con `Ctrl+C`. El programa no abre
-automáticamente el navegador. El servidor solo escucha en la interfaz local y
-SQLite se abre con `mode=ro`.
-
-Se mantienen `BEAGLEBONE/analisis/Abrir_visor.cmd` y los puntos de entrada Python
-anteriores como lanzadores de compatibilidad. El CMD busca, por orden, el
-intérprete indicado en `DATALOGGER_PYTHON`, `.venv`, `py -3`, `python` y el runtime
-local anterior de Codex si está disponible. No contiene una ruta personal fija.
-
-### Datos necesarios
-
-Para arrancar hacen falta estos tres archivos coherentes entre sí:
-
-```text
-data/database/historicos.sqlite
-data/processed/resumen_historicos.json
-data/raw/extraido/home/actemium/apps/xthreeconpi/config/units.txt
-```
-
-En este equipo se conservan los datos existentes. Un clon nuevo no los tendrá:
-deben aportarse por un medio privado o generarse a partir de una copia autorizada.
-Sin esos archivos el visor no arranca; no se crea una base vacía como sustituto.
-El HTML mantiene la unidad inicial `U04` del visor original.
-
-## Configuración
-
-No es necesario configurar variables con la estructura local predeterminada.
-`.env.example` documenta las opciones; **no se carga automáticamente**.
-Se pueden exportar variables antes de ejecutar, por ejemplo en PowerShell:
+En PowerShell, desde la raiz, simular 24 remotas:
 
 ```powershell
-$env:DATALOGGER_DATA_DIR = 'D:\DatosDatalogger'
-python scripts/visor_historicos.py
+.\scripts\Iniciar_adquisicion.cmd --config .\config\simulacion_flota.json
 ```
 
-En Linux:
+Modbus Poll: TCP/IP **127.0.0.1:1502**, Slave ID **1**, funcion **03**, direccion
+**0**, cantidad **20**. Seleccionar todas las celdas y aplicar **32-bit unsigned,
+big-endian, sin intercambio**. Direcciones de base cero, no numeros 40001.
+Cada contador ocupa dos registros; una celda `--` puede corresponder a la segunda
+palabra. La mezcla de negativos de la captura es compatible con celdas en signed16,
+no demuestra fallo TCP. No usar float ni 16-bit signed para estos contadores.
 
-```sh
-export DATALOGGER_DATA_DIR=/srv/datalogger-data
-python3 scripts/visor_historicos.py
+La flota actualiza cada diez minutos. Para cambios cada segundo sigue disponible:
+
+```powershell
+.\scripts\Abrir_simulador_modbus.cmd
 ```
 
-También existen `DATALOGGER_DATABASE`, `DATALOGGER_ARCHIVE`, `DATALOGGER_UNITS`
-y `DATALOGGER_LOG_DIR`. Las rutas relativas parten siempre de la raíz del
-proyecto. El visor no utiliza contraseñas FTP ni SSH. Las credenciales originales
-se conservan únicamente en la copia local ignorada. Véase [configuración](config/README.md).
+Cerrar el otro servidor antes: ambos usan 1502. No confundir sus valores ficticios
+con entradas reales. Registro de origen=1 en ambos simuladores.
 
-## Utilidades de análisis
+Validar configuracion sin red ni escrituras:
 
-Estos comandos **escriben resultados**. No son necesarios para abrir el visor
-cuando la copia ya está preparada. Para experimentar sin reemplazar resúmenes
-existentes, usar otro `DATALOGGER_DATA_DIR` y apuntar `DATALOGGER_ARCHIVE` al TAR.
-
-```sh
-python scripts/analizar_copia.py
-python scripts/analizar_historicos.py
-python tools/inspeccionar_java.py
+```powershell
+.\scripts\Iniciar_adquisicion.cmd --config .\config\adquisicion.local.json --check
 ```
 
-- `analizar_copia.py` inventaría el TAR y extrae la selección original a
-  `data/raw/extraido/`. No ejecuta los archivos recuperados.
-- `analizar_historicos.py` lee históricos del TAR, escribe SQLite, resúmenes en
-  `data/processed/` y logs en `logs/`. Conserva la lógica original de deduplicación.
-- `inspeccionar_java.py` inspecciona estáticamente las clases del JAR extraído y
-  escribe `data/processed/java_estatico/`. No requiere ejecutar Java.
+Se preparo un inventario privado local de 24 remotas con solo U24 habilitada.
+El ejemplo publico contiene radio y alias SSH ficticios. No ejecutar modo real
+hasta preparar SSH y la transicion. Rutas de base/logs relativas al JSON.
 
-Los informes de calidad y otros resultados previos que no tienen generador en
-este repositorio se conservan en `data/processed/`; no se promete regenerarlos.
+## Robustez implementada
 
-## Pruebas y Git
+- Rondas secuenciales con timeout por unidad; servidor TCP independiente del SSH.
+- Una sesion SSH por ronda, no por tarjeta. Se reconstruye cada diez minutos:
+  no depende de mantener una conexion abierta durante las esperas. Fallo total:
+  espera creciente de 30 a 600 segundos; fallo parcial: nueva ronda ordinaria.
+- Ultimo valor retenido con estado, edad y origen. Un fallo no publica ceros validos.
+- SQLite transaccional, WAL, synchronous FULL. Tras reinicio: datos recuperados
+  marcados antiguos hasta nueva lectura. Simulacion nunca se restaura como real.
+- Exclusion de instancias por base, hasta 16 clientes TCP y timeouts de socket.
+- Logs rotados (2 MB + cinco copias). Las muestras SQLite no se borran: planificar
+  espacio, copias y archivado. 24 tarjetas cada 10 minutos: 3.456 muestras/dia.
+- Tarea Windows preparada con arranque, reintentos y supervision periodica,
+  **no instalada**. Pendiente ensayo real de reinicios/cortes y rutas con repetidores.
 
-```sh
+## Historicos y mantenimiento
+
+Abrir `.\scripts\Abrir_visor.cmd` y **http://127.0.0.1:8765/**. Requiere los datos
+privados conservados. [Guia de historicos](docs/HISTORICOS.md): instalacion,
+variables de entorno, analisis y ubicaciones. La base historica no se modifica.
+
+```powershell
 python -m unittest discover -s tests -v
 python tools/verify_repository.py
 git status --short
-git diff --cached --stat
+git diff --check
 ```
 
-Las pruebas usan datos ficticios temporales; no modifican históricos reales.
-El verificador comprueba sintaxis/imports, exclusiones y posibles secretos en
-los archivos versionables y en el índice. Su búsqueda de secretos es heurística.
-
-`.gitignore` excluye datos, logs, cachés, entornos virtuales, backups, credenciales
-y documentación privada. No usar `git add -f` para incluir esos archivos. Los
-datos ignorados necesitan sus propias copias de seguridad: Git no los respalda.
-
-El mapa de movimientos y las particularidades de compatibilidad están en
-[reorganización](docs/REORGANIZACION.md). Véanse también
-[arquitectura](docs/ARQUITECTURA.md) y [despliegue en BeagleBone](deployment/README.md).
+Usar el interprete configurado si python es el alias de Microsoft Store. Las
+pruebas usan datos temporales, no hardware. Git excluye datos, backups, logs,
+credenciales y documentos privados; no usar git add -f. La busqueda de secretos
+es heuristica. No se ha hecho commit, publicacion ni instalacion remota.
