@@ -5,6 +5,11 @@ y consultar sus históricos en un visor web de solo lectura. El visor no conecta
 con la placa, la radio ni servidores FTP. La adquisición original pertenece al
 programa Java recuperado en la copia privada; no se sustituye con este proyecto.
 
+También hay un [puente de banco U24 → Modbus TCP](docs/MODBUS_TCP.md), independiente
+del visor, para consultar contadores reales desde Modbus Poll. El puente funciona
+con Python 3.5+ en la BeagleBone, sin paquetes externos, y requiere detener Java
+para utilizar su puerto serie. Su puesta en marcha real se valida por separado.
+
 ## Estructura
 
 ```text
