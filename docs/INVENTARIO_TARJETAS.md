@@ -91,3 +91,9 @@ Los ceros RS de una tarjeta sin analizador no son lecturas validas.
 
 No se implementan escrituras de reloj, configuracion Modbus de las remotas,
 resets GPIO, ACK especulativos, borrado ni descarga de historicos de campo.
+
+## Ampliacion documental
+
+La revision visual de las fotos confirma en U13 la expansion STM-X3-2AI-RS485-1,
+con dos AI seleccionables 0?10 V / 4?20 mA y rotulo Modbus RTU. El inventario
+de equipos/canales, limites y evidencias esta en [DISPOSITIVOS_Y_SENALES.md](DISPOSITIVOS_Y_SENALES.md).

@@ -1,6 +1,8 @@
-﻿# Indice de contenidos
+# Indice de contenidos
 
 ## Leer primero
+
+- **[Dispositivos y se?ales de campo](DISPOSITIVOS_Y_SENALES.md):** recopilaci?n por remota/canal, RS485, DI, 0?10 V y 4?20 mA, fotos, hist?ricos y pendientes.
 
 1. [README](../README.md): sistema anterior, objetivo, uso y limites.
 2. [Inventario de tarjetas](INVENTARIO_TARJETAS.md): 24 unidades, capacidades y evidencias.

@@ -1,4 +1,4 @@
-﻿# DataloggerWavesin
+# DataloggerWavesin
 
 Adquisicion Wavenis desde un PC Windows, persistencia local y publicacion Modbus
 TCP para EBO/Modbus Poll. Incluye el visor de historicos del sistema anterior.
@@ -9,6 +9,8 @@ expansion RS485 confirmada por el usuario; su respuesta y escala aun pendientes.
 
 [Indice](docs/INDICE.md) · [Tarjetas](docs/INVENTARIO_TARJETAS.md) ·
 [Mapa y adquisicion](docs/ADQUISICION.md) · [Despliegue](deployment/README.md)
+
+Consulta tambi?n la [recopilaci?n de dispositivos y se?ales](docs/DISPOSITIVOS_Y_SENALES.md), con las 24 remotas y evidencias por canal.
 
 ## Sistema anterior y objetivo
 
